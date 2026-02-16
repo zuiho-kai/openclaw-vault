@@ -22,14 +22,18 @@ import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'crypt
 
 class Encryption {
   constructor(masterKey) {
-    // 使用 scrypt 从主密钥派生 32 字节密钥
-    this.key = scryptSync(masterKey, 'vault-salt', 32);
+    this.masterKey = masterKey;
     this.algorithm = 'aes-256-gcm';
   }
 
   encrypt(text) {
-    const iv = randomBytes(16);
-    const cipher = createCipheriv(this.algorithm, this.key, iv);
+    // 生成随机盐和 IV（12 字节 IV 是 GCM 推荐大小）
+    const salt = randomBytes(32);
+    const iv = randomBytes(12);
+
+    // 使用随机盐派生密钥
+    const key = scryptSync(this.masterKey, salt, 32);
+    const cipher = createCipheriv(this.algorithm, key, iv);
 
     let encrypted = cipher.update(text, 'utf8', 'base64');
     encrypted += cipher.final('base64');
@@ -38,15 +42,23 @@ class Encryption {
 
     return {
       encrypted,
+      salt: salt.toString('base64'),
       iv: iv.toString('base64'),
       authTag: authTag.toString('base64')
     };
   }
 
   decrypt(encryptedData) {
+    // 使用存储的盐派生密钥
+    const key = scryptSync(
+      this.masterKey,
+      Buffer.from(encryptedData.salt, 'base64'),
+      32
+    );
+
     const decipher = createDecipheriv(
       this.algorithm,
-      this.key,
+      key,
       Buffer.from(encryptedData.iv, 'base64')
     );
 
@@ -244,6 +256,6 @@ export default function vaultPlugin(api) {
   return {
     id: 'vault',
     name: 'Vault',
-    version: '1.1.0'
+    version: '1.1.1'
   };
 }

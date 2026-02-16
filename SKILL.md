@@ -1,7 +1,7 @@
 ---
 name: vault
 description: Secure local password storage tool with AES-256-GCM encryption. Store, retrieve, and manage passwords with CLI commands.
-version: 1.1.0
+version: 1.1.1
 author: zuiho-kai
 homepage: https://github.com/zuiho-kai/openclaw-vault
 tags: [password, vault, security, credentials, password-manager, cli, encryption]
@@ -9,6 +9,7 @@ metadata:
   openclaw:
     requires:
       bins: [node, npm]
+      env: [VAULT_MASTER_KEY]
 ---
 
 # vault
@@ -92,8 +93,9 @@ Or in your OpenClaw config:
 🔒 **Encryption Details**:
 
 - **Algorithm**: AES-256-GCM (Galois/Counter Mode)
-- **Key Derivation**: scrypt with salt
-- **IV**: Random 16-byte initialization vector per password
+- **Key Derivation**: scrypt with random salt per password
+- **IV**: Random 12-byte initialization vector per password (GCM recommended size)
+- **Salt**: Random 32-byte salt per password, stored with encrypted data
 - **Authentication**: GCM authentication tag for integrity verification
 
 **Security Best Practices**:

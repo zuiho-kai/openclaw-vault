@@ -2,8 +2,9 @@
   "id": "vault",
   "kind": "skill",
   "name": "Vault",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "安全的本地密码存储工具（AES-256-GCM 加密）",
+  "requiredEnv": ["VAULT_MASTER_KEY"],
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
