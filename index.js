@@ -256,6 +256,6 @@ export default function vaultPlugin(api) {
   return {
     id: 'vault',
     name: 'Vault',
-    version: '1.1.1'
+    version: '1.1.2'
   };
 }

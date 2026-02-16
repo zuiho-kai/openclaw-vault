@@ -1,7 +1,7 @@
 ---
 name: vault
 description: Secure local password storage tool with AES-256-GCM encryption. Store, retrieve, and manage passwords with CLI commands.
-version: 1.1.1
+version: 1.1.2
 author: zuiho-kai
 homepage: https://github.com/zuiho-kai/openclaw-vault
 tags: [password, vault, security, credentials, password-manager, cli, encryption]
