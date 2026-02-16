@@ -1,7 +1,7 @@
 /**
  * OpenClaw Vault Plugin
  *
- * 安全密码管理工具
+ * 安全密码管理工具（支持 AES-256-GCM 加密）
  *
  * 命令:
  *   vault <key> <password>  - 设置密码
@@ -14,14 +14,59 @@ import { readFile, writeFile, mkdir } from 'fs/promises';
 import { join, dirname } from 'path';
 import { homedir } from 'os';
 import { existsSync } from 'fs';
+import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'crypto';
+
+// ============================================================================
+// 加密工具
+// ============================================================================
+
+class Encryption {
+  constructor(masterKey) {
+    // 使用 scrypt 从主密钥派生 32 字节密钥
+    this.key = scryptSync(masterKey, 'vault-salt', 32);
+    this.algorithm = 'aes-256-gcm';
+  }
+
+  encrypt(text) {
+    const iv = randomBytes(16);
+    const cipher = createCipheriv(this.algorithm, this.key, iv);
+
+    let encrypted = cipher.update(text, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
+
+    const authTag = cipher.getAuthTag();
+
+    return {
+      encrypted,
+      iv: iv.toString('base64'),
+      authTag: authTag.toString('base64')
+    };
+  }
+
+  decrypt(encryptedData) {
+    const decipher = createDecipheriv(
+      this.algorithm,
+      this.key,
+      Buffer.from(encryptedData.iv, 'base64')
+    );
+
+    decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'base64'));
+
+    let decrypted = decipher.update(encryptedData.encrypted, 'base64', 'utf8');
+    decrypted += decipher.final('utf8');
+
+    return decrypted;
+  }
+}
 
 // ============================================================================
 // 存储管理
 // ============================================================================
 
 class VaultStorage {
-  constructor(storagePath) {
+  constructor(storagePath, encryption) {
     this.storagePath = join(homedir(), storagePath);
+    this.encryption = encryption;
   }
 
   async ensureStorage() {
@@ -47,8 +92,10 @@ class VaultStorage {
 
   async set(key, password) {
     const data = await this.load();
+    const encryptedPassword = this.encryption.encrypt(password);
+
     data[key] = {
-      password,
+      password: encryptedPassword,
       createdAt: data[key]?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -58,7 +105,20 @@ class VaultStorage {
 
   async get(key) {
     const data = await this.load();
-    return data[key];
+    const entry = data[key];
+
+    if (!entry) {
+      return null;
+    }
+
+    // 解密密码
+    const decryptedPassword = this.encryption.decrypt(entry.password);
+
+    return {
+      password: decryptedPassword,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt
+    };
   }
 
   async remove(key) {
@@ -88,7 +148,19 @@ class VaultStorage {
 export default function vaultPlugin(api) {
   const config = api.getConfig() || {};
   const storagePath = config.storageFile || '.vault/passwords.json';
-  const storage = new VaultStorage(storagePath);
+
+  // 获取主密钥
+  const masterKey = process.env.VAULT_MASTER_KEY || config.masterKey;
+
+  if (!masterKey) {
+    console.error('⚠️  VAULT_MASTER_KEY not set!');
+    console.error('Please set environment variable: export VAULT_MASTER_KEY="your-secure-key"');
+    console.error('Or add to config: { "plugins": { "vault": { "masterKey": "your-secure-key" } } }');
+    throw new Error('VAULT_MASTER_KEY is required for encryption');
+  }
+
+  const encryption = new Encryption(masterKey);
+  const storage = new VaultStorage(storagePath, encryption);
 
   // 注册 vault 命令
   api.registerSkill({
@@ -172,6 +244,6 @@ export default function vaultPlugin(api) {
   return {
     id: 'vault',
     name: 'Vault',
-    version: '1.0.0'
+    version: '1.1.0'
   };
 }

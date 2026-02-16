@@ -2,12 +2,16 @@
   "id": "vault",
   "kind": "skill",
   "name": "Vault",
-  "version": "1.0.1",
-  "description": "简单的本地密码存储工具（明文存储，仅用于非关键凭据）",
+  "version": "1.1.0",
+  "description": "安全的本地密码存储工具（AES-256-GCM 加密）",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
     "properties": {
+      "masterKey": {
+        "type": "string",
+        "description": "主加密密钥（也可使用 VAULT_MASTER_KEY 环境变量）"
+      },
       "storageFile": {
         "type": "string",
         "default": ".vault/passwords.json",
@@ -16,6 +20,12 @@
     }
   },
   "uiHints": {
+    "masterKey": {
+      "label": "Master Key",
+      "placeholder": "your-secure-master-key",
+      "help": "Master encryption key (can also use VAULT_MASTER_KEY env var)",
+      "secret": true
+    },
     "storageFile": {
       "label": "Storage File",
       "placeholder": ".vault/passwords.json",

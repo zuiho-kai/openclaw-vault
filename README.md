@@ -1,17 +1,17 @@
-# Vault - Simple Password Storage
+# Vault - Secure Password Storage
 
-⚠️ **Plain text storage** - Use only for non-critical credentials.
+🔒 **AES-256-GCM encryption** - Secure local password storage with industry-standard encryption.
 
-Simple local password storage tool with CLI interface.
+Secure local password storage tool with CLI interface and AES-256-GCM encryption.
 
 ## Features
 
+- 🔒 AES-256-GCM encryption for all stored passwords
 - 📝 Simple command-line interface
 - 🗂️ Key management and listing
-- 💾 JSON-based local storage (plain text)
+- 💾 JSON-based local storage (encrypted)
 - 🕐 Automatic timestamp tracking
-
-⚠️ **Security Notice**: This plugin stores passwords in unencrypted JSON. Suitable only for development/testing credentials or low-value secrets. For production use, consider proper password managers with encryption.
+- 🔑 Master key protection
 
 ## 安装
 
@@ -20,6 +20,31 @@ cd /path/to/openclaw-vault
 npm install
 openclaw plugins link $(pwd)
 ```
+
+## 配置主密钥
+
+**必需**: 设置主加密密钥
+
+通过环境变量：
+
+```bash
+export VAULT_MASTER_KEY="your-secure-master-key-here"
+```
+
+或在 OpenClaw 配置中：
+
+```json
+{
+  "plugins": {
+    "vault": {
+      "masterKey": "your-secure-master-key-here",
+      "storageFile": ".vault/passwords.json"
+    }
+  }
+}
+```
+
+⚠️ **重要**: 请妥善保管主密钥！没有它将无法解密已存储的密码。
 
 ## 使用方法
 
@@ -63,6 +88,7 @@ vault list
 {
   "plugins": {
     "vault": {
+      "masterKey": "your-secure-master-key-here",
       "storageFile": ".vault/passwords.json"
     }
   }
@@ -71,33 +97,36 @@ vault list
 
 ### 配置选项
 
+- `masterKey`: 主加密密钥（也可使用 VAULT_MASTER_KEY 环境变量）
 - `storageFile`: 密码存储文件路径（相对于用户主目录）
 
 ## 存储位置
 
-默认存储在 `~/.vault/passwords.json`
+默认存储在 `~/.vault/passwords.json`（加密格式）
 
-## 安全提示
+## 安全特性
 
-⚠️ **重要 - 明文存储**:
+🔒 **加密详情**:
 
-当前版本使用**未加密的 JSON 格式**存储密码。仅适用于：
+- **算法**: AES-256-GCM (Galois/Counter Mode)
+- **密钥派生**: scrypt 加盐处理
+- **初始化向量**: 每个密码使用随机 16 字节 IV
+- **认证**: GCM 认证标签确保完整性验证
+
+**安全最佳实践**：
+1. 使用强壮且唯一的主密钥（建议至少 32 字符）
+2. 安全存储主密钥（环境变量或安全配置）
+3. 设置严格的文件权限：`chmod 600 ~/.vault/passwords.json`
+4. 将 `.vault/` 添加到 `.gitignore`
+5. 永远不要将主密钥提交到版本控制
+6. 使用系统级磁盘加密提供额外保护
+7. 安全备份主密钥 - 丢失密钥意味着丢失所有密码
+
+**适用于**：
 - 开发/测试凭据
-- 非关键 API 密钥
-- 临时密码
-- 低价值秘密
-
-**不要用于**：
-- 生产环境凭据
-- 金融信息
-- 个人敏感数据
-- 高价值 API 密钥
-
-**建议**：
-1. 设置严格的文件权限：`chmod 600 ~/.vault/passwords.json`
-2. 将存储文件添加到 `.gitignore`
-3. 使用系统级磁盘加密
-4. 对于生产秘密，使用专业密码管理器（1Password、Bitwarden 等）
+- API 密钥和令牌
+- 个人密码
+- 团队共享凭据（需安全分发密钥）
 
 ## 示例
 

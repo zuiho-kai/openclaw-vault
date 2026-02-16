@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-02-17
+
+### Added
+- **AES-256-GCM encryption** for all stored passwords
+- Master key support via `VAULT_MASTER_KEY` environment variable or config
+- Encryption class with scrypt key derivation
+- Random IV (initialization vector) generation per password
+- GCM authentication tags for integrity verification
+
+### Changed
+- Updated from plain text to encrypted storage format
+- Modified `VaultStorage` class to support encryption/decryption
+- Updated all documentation to reflect encryption features
+- Changed description from "simple" to "secure" password storage
+- Version bumped to 1.1.0
+
+### Security
+- **BREAKING**: Requires master key to be set (VAULT_MASTER_KEY or config.masterKey)
+- Passwords now encrypted with AES-256-GCM before storage
+- Each password uses unique random IV for enhanced security
+- Authentication tags ensure data integrity
+- Existing plain text passwords will need to be re-entered after upgrade
+
 ## [1.0.1] - 2026-02-17
 
 ### Changed

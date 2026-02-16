@@ -1,7 +1,7 @@
 {
   "name": "openclaw-vault",
-  "version": "1.0.1",
-  "description": "OpenClaw plugin for simple local password storage (plain text)",
+  "version": "1.1.0",
+  "description": "OpenClaw plugin for secure local password storage with AES-256-GCM encryption",
   "type": "module",
   "main": "index.js",
   "keywords": [
@@ -10,7 +10,9 @@
     "password",
     "vault",
     "security",
-    "credentials"
+    "credentials",
+    "encryption",
+    "aes-256-gcm"
   ],
   "author": "zuiho-kai",
   "license": "MIT",
