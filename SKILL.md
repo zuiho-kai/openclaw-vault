@@ -1,7 +1,7 @@
 ---
 name: vault
-description: Secure password management tool. Store, retrieve, and manage passwords locally with simple CLI commands.
-version: 1.0.0
+description: Simple local password storage tool. Store, retrieve, and manage passwords with CLI commands. Plain text storage - use for non-critical credentials only.
+version: 1.0.1
 author: zuiho-kai
 homepage: https://github.com/zuiho-kai/openclaw-vault
 tags: [password, vault, security, credentials, password-manager, cli]
@@ -13,17 +13,17 @@ metadata:
 
 # vault
 
-**Use when** you need to securely store and manage passwords, API keys, or other credentials locally.
+**Use when** you need a simple local storage for non-critical passwords, API keys, or credentials.
 
-Local password management plugin with simple CLI interface. Zero configuration, fully local storage.
+⚠️ **Plain text storage** - This plugin stores passwords in unencrypted JSON. Use only for low-value credentials or development/testing purposes. For production secrets, use a proper password manager with encryption.
 
 ## Features
 
-- 🔐 Secure local password storage
 - 📝 Simple command-line interface
 - 🗂️ Key management and listing
-- 💾 JSON-based local storage
+- 💾 JSON-based local storage (plain text)
 - 🕐 Automatic timestamp tracking
+- ⚠️ No encryption - suitable for non-critical credentials only
 
 ## Installation
 
@@ -76,10 +76,25 @@ Optional configuration in your OpenClaw config:
 
 ## Security
 
-⚠️ **Important**: Current version uses plain text storage. Ensure:
-- Proper file system permissions
-- Don't commit storage file to version control
-- Consider using system-level encryption (disk encryption)
+⚠️ **IMPORTANT - Plain Text Storage**:
+
+This plugin stores passwords in **unencrypted JSON format**. It is suitable ONLY for:
+- Development/testing credentials
+- Non-critical API keys
+- Temporary passwords
+- Low-value secrets
+
+**DO NOT use for**:
+- Production credentials
+- Financial information
+- Personal sensitive data
+- High-value API keys
+
+**Recommendations**:
+- Set strict file permissions: `chmod 600 ~/.vault/passwords.json`
+- Add `.vault/` to your `.gitignore`
+- Use system-level disk encryption
+- For production secrets, use proper password managers (1Password, Bitwarden, etc.)
 
 ## Examples
 

@@ -2,8 +2,8 @@
   "id": "vault",
   "kind": "skill",
   "name": "Vault",
-  "version": "1.0.0",
-  "description": "安全密码管理工具 - 存储、查看和管理密码",
+  "version": "1.0.1",
+  "description": "简单的本地密码存储工具（明文存储，仅用于非关键凭据）",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -12,11 +12,6 @@
         "type": "string",
         "default": ".vault/passwords.json",
         "description": "密码存储文件路径（相对于用户目录）"
-      },
-      "encryptionEnabled": {
-        "type": "boolean",
-        "default": false,
-        "description": "是否启用加密存储（需要主密码）"
       }
     }
   },
@@ -26,11 +21,6 @@
       "placeholder": ".vault/passwords.json",
       "advanced": true,
       "help": "Password storage file path relative to home directory"
-    },
-    "encryptionEnabled": {
-      "label": "Enable Encryption",
-      "help": "Encrypt passwords with a master password (recommended)",
-      "advanced": true
     }
   }
 }

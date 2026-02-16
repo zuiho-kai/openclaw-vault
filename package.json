@@ -1,7 +1,7 @@
 {
   "name": "openclaw-vault",
-  "version": "1.0.0",
-  "description": "OpenClaw plugin for secure password management",
+  "version": "1.0.1",
+  "description": "OpenClaw plugin for simple local password storage (plain text)",
   "type": "module",
   "main": "index.js",
   "keywords": [
